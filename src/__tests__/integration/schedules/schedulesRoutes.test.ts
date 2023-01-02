@@ -2,13 +2,13 @@ import { DataSource } from "typeorm";
 import AppDataSource from "../../../data-source";
 import request from "supertest"
 import app from "../../../app";
-import {mockedUser, mockedAdmin, mockedAdminLogin, mockedCategory, mockedProperty, mockedUserLogin, mockedSchedule, mockedScheduleInvalidPropertyId, mockedScheduleInvalidDate, mockedScheduleInvalidHourLess8, mockedScheduleInvalidHourMore18, mockedProperty2} from "../../mocks"
+import { mockedUser, mockedAdmin, mockedAdminLogin, mockedCategory, mockedProperty, mockedUserLogin, mockedSchedule, mockedScheduleInvalidPropertyId, mockedScheduleInvalidDate, mockedScheduleInvalidHourLess8, mockedScheduleInvalidHourMore18, mockedProperty2 } from "../../mocks"
 
 
 describe("/schedules", () => {
     let connection: DataSource
 
-    beforeAll(async() => {
+    beforeAll(async () => {
         await AppDataSource.initialize().then((res) => {
             connection = res
         }).catch((err) => {
@@ -25,11 +25,11 @@ describe("/schedules", () => {
         await request(app).post('/properties').set("Authorization", `Bearer ${adminLoginResponse.body.token}`).send(mockedProperty2)
     })
 
-    afterAll(async() => {
+    afterAll(async () => {
         await connection.destroy()
     })
 
-    test("POST /schedules -  should be able to create a schedule",async () => {
+    test("POST /schedules -  should be able to create a schedule", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const properties = await request(app).get('/properties')
@@ -42,7 +42,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(201)
     })
 
-    test("POST /schedules -  must not be able to create a schedule that already exists on a property",async () => {
+    test("POST /schedules -  must not be able to create a schedule that already exists on a property", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const properties = await request(app).get('/properties')
@@ -58,7 +58,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(409)
     })
 
-    test("POST /schedules -  the user must not be able to make 2 schedules in different properties with the same date and time",async () => {
+    test("POST /schedules -  the user must not be able to make 2 schedules in different properties with the same date and time", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const properties = await request(app).get('/properties')
@@ -72,7 +72,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(409)
     })
 
-    test("POST /schedules -  should not be able to create a schedule with an invalid date",async () => {
+    test("POST /schedules -  should not be able to create a schedule with an invalid date", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const properties = await request(app).get('/properties')
@@ -85,7 +85,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(400)
     })
 
-    test("POST /schedules -  should not be able to create a schedule with an invalid hour < 8",async () => {
+    test("POST /schedules -  should not be able to create a schedule with an invalid hour < 8", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const properties = await request(app).get('/properties')
@@ -98,7 +98,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(400)
     })
 
-    test("POST /schedules -  should not be able to create a schedule with an invalid hour > 18",async () => {
+    test("POST /schedules -  should not be able to create a schedule with an invalid hour > 18", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const properties = await request(app).get('/properties')
@@ -111,7 +111,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(400)
     })
 
-    test("POST /schedules -  should not be able to create a schedule with an invalid property id",async () => {
+    test("POST /schedules -  should not be able to create a schedule with an invalid property id", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const userLoginResponse = await request(app).post("/login").send(mockedUserLogin);
@@ -123,7 +123,7 @@ describe("/schedules", () => {
     })
 
 
-    test("POST /schedules -  should not be able to create a schedule without authentication",async () => {
+    test("POST /schedules -  should not be able to create a schedule without authentication", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const users = await request(app).get('/users').set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
         const properties = await request(app).get('/properties')
@@ -135,7 +135,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(401)
     })
 
-    test("GET /schedules/properties/:id -  must be able to list the schedules of a property",async () => {
+    test("GET /schedules/properties/:id -  must be able to list the schedules of a property", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const properties = await request(app).get('/properties')
         const response = await request(app).get(`/schedules/properties/${properties.body[0].id}`).set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
@@ -149,7 +149,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(200)
     })
 
-    test("GET /schedules/properties/:id -  should not be able to list the schedules of a property with invalid id",async () => {
+    test("GET /schedules/properties/:id -  should not be able to list the schedules of a property with invalid id", async () => {
         const adminLoginResponse = await request(app).post("/login").send(mockedAdminLogin);
         const response = await request(app).get(`/schedules/properties/b855d86b-d4c9-41cd-ab98-d7fa734c6ce4`).set("Authorization", `Bearer ${adminLoginResponse.body.token}`)
 
@@ -157,7 +157,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(404)
     })
 
-    test("GET /schedules/properties/:id -  should not be able to list the schedules of a property without authentication",async () => {
+    test("GET /schedules/properties/:id -  should not be able to list the schedules of a property without authentication", async () => {
         const properties = await request(app).get('/properties')
         const response = await request(app).get(`/schedules/properties/${properties.body[0].id}`)
 
@@ -165,7 +165,7 @@ describe("/schedules", () => {
         expect(response.status).toBe(401)
     })
 
-    test("GET /schedules/properties/:id -  should not be able to list the schedules of a property that the user is not admin",async () => {
+    test("GET /schedules/properties/:id -  should not be able to list the schedules of a property that the user is not admin", async () => {
         const userLoginResponse = await request(app).post("/login").send(mockedUserLogin);
         const properties = await request(app).get('/properties')
         const response = await request(app).get(`/schedules/properties/${properties.body[0].id}`).set("Authorization", `Bearer ${userLoginResponse.body.token}`)
