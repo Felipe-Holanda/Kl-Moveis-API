@@ -1,54 +1,24 @@
-import { propertyRepository, categoryRepository, addressRepository } from "../../data-source";
-import { AppError } from "../../errors";
-import { IPropertyRequest } from "../../interfaces/properties";
+import { propertyRepository, addressRepository } from "../../data-source";
+import { Address } from "../../entities/address.entity";
+import { Property } from "../../entities/property.entity";
 
-const createPropertiesService = async (data: IPropertyRequest) => {
+export default async function registerPropertyService(data) {
+    const address = new Address();
+    address.district = data.address.district;
+    address.city = data.address.city;
+    address.state = data.address.state;
+    address.zipCode = data.address.zipCode;
+    address.number = data.address.number;
 
-    const categExist = await categoryRepository.findOneBy({
-        id: data.categoryId,
-    });
+    const created = await addressRepository.save(address);
 
-    const addressExist = await addressRepository.findOneBy({
-        zipCode: data.address.zipCode,
-    });
+    const property = new Property();
+    property.value = data.value;
+    property.size = data.size;
+    property.category = data.categoryId;
+    property.address = created;
 
-    if (!categExist) {
-        throw new AppError("Categorie not exist", 404);
-    }
+    const createdProperty = await propertyRepository.save(property);
 
-    if (data.address.state.length > 2) {
-        throw new AppError(
-            "Cannot be registered with state more than 2 digits",
-            400
-        );
-    }
-
-    if (data.address.zipCode.length > 8) {
-        throw new AppError(
-            "Cannot be registered with zipcode more than 8 digits",
-            400
-        );
-    }
-
-    if (addressExist) {
-        throw new AppError("Address already exist", 409);
-    }
-
-    const createAddres = addressRepository.create(data.address);
-    await addressRepository.save(createAddres);
-
-    const dataProps = {
-        address: createAddres,
-        category: categExist,
-        size: data.size,
-        value: data.value,
-    };
-
-    const props = propertyRepository.create(dataProps);
-
-    await propertyRepository.save(props);
-
-    return props;
-};
-
-export default createPropertiesService;
+    return createdProperty;
+}

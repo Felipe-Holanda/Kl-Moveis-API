@@ -71,7 +71,6 @@ describe("/categories", () => {
 
         const category = await request(app).get('/categories')
         const response = await request(app).get(`/categories/${category.body[0].id}/properties`)
-        console.log(response.body)
         expect(response.status).toBe(200)
         expect(response.body).toHaveProperty("id")
         expect(response.body).toHaveProperty("name")
